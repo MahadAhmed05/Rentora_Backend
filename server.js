@@ -8,7 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const requestRoutes = require("./routes/requestRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
-
+const userRoutes = require("./routes/userRoutes");
 const app = express();
 
 // Connect to MongoDB
@@ -33,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/requests", requestRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/user", userRoutes);
 
 // 404 handler
 app.use((req, res) => {

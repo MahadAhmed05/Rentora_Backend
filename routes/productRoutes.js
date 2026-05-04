@@ -7,6 +7,7 @@ const {
   getMyProducts,
   getProductById,
   updateProductStatus,
+  deleteProduct,
 } = require("../controllers/productController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -40,6 +41,13 @@ router.put(
   roleMiddleware("owner"),
   validate(updateProductStatusSchema),
   updateProductStatus
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("owner"),
+  deleteProduct
 );
 
 module.exports = router;

@@ -193,10 +193,66 @@ const updateProductStatus = async (req, res) => {
   }
 };
 
+// ─── DELETE /api/products/:id ─────────────────────────────────────────────────
+const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found.",
+      });
+    }
+
+    // Only the owner of this product can delete it
+    if (product.ownerId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this product.",
+      });
+    }
+
+    // Block deletion if an active or future booking exists
+    const activeBooking = await Booking.findOne({
+      productId: product._id,
+      endDate: { $gte: new Date() },
+    });
+
+    if (activeBooking) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot delete this product. It is currently rented or has an upcoming booking.",
+      });
+    }
+
+    await Product.findByIdAndDelete(req.params.id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Product deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Delete product error:", error);
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID format.",
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      message: "Server error. Could not delete product.",
+    });
+  }
+};
+
 module.exports = {
   createProduct,
   getAllProducts,
   getMyProducts,
   getProductById,
   updateProductStatus,
+  deleteProduct,
 };
